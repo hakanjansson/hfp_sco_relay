@@ -51,4 +51,9 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# Project specific
+*.csv
+*.pcm
+
 hfp_sco_relay
+log_server
