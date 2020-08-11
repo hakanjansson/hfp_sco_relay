@@ -1,0 +1,45 @@
+# Wireshark Generic Dissector file
+# See http://wsgd.free.fr/
+
+enum16 T_custom_msg_type
+{
+	sco_data_packet		1
+	text_message 		16
+}
+
+struct T_custom_header
+{
+	byte_order		big_endian;
+	
+	T_custom_msg_type 	msg_type;
+	int64 			timestamp;
+	uint16 			msg_len_after_header;
+}
+
+struct T_sco_data_packet
+{
+	T_custom_header		header;
+	hide uint8[6]		src;
+	hide uint8[6]		dst;
+	var string 		BD_ADDR_SRC = print("%02X:%02X:%02X:%02X:%02X:%02X", src[5], src[4], src[3], src[2], src[1], src[0]);
+	var string 		BD_ADDR_DST = print("%02X:%02X:%02X:%02X:%02X:%02X", dst[5], dst[4], dst[3], dst[2], dst[1], dst[0]);
+	uint8			data_len;
+	uint8			has_data;
+	uint32			sequence;
+	raw(data_len)		data;
+}
+
+struct T_text_message
+{
+	T_custom_header		header;
+	uint16			log_level;
+	uint16			txt_len;
+	string(txt_len)		text;
+	raw(*)			end_of_msg;
+}
+
+switch T_custom_switch T_custom_msg_type
+{
+case T_custom_msg_type::sco_data_packet	:	T_sco_data_packet "" ;
+case T_custom_msg_type::text_message	:	T_text_message "" ;
+}

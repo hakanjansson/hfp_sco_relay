@@ -1,0 +1,17 @@
+# Wireshark Generic Dissector file
+# See http://wsgd.free.fr/
+
+PROTONAME Custom	Logging Protocol
+PROTOSHORTNAME		custom_log
+PROTOABBREV		cust_log
+
+PARENT_SUBFIELD		udp.port
+PARENT_SUBFIELD_VALUES	4445
+
+MSG_HEADER_TYPE		T_custom_header
+MSG_ID_FIELD_NAME	msg_type
+MSG_MAIN_TYPE		T_custom_switch(msg_type)
+
+PROTO_TYPE_DEFINITIONS
+
+include custom_log.fdesc;
