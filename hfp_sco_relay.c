@@ -540,14 +540,17 @@ int main(int argc, char **argv)
 	for (int i = 0; i < VDB_NUM_PKTS; i++) {
 		conn_hfp[audio_gateway].vdb.packet[i].header.msg_type = htons(sco_data_packet_type);
 		conn_hfp[hands_free_unit].vdb.packet[i].header.msg_type = htons(sco_data_packet_type);
-		fixed_data_pkt.header.msg_type = htons(sco_data_packet_type);
 		conn_hfp[audio_gateway].vdb.packet[i].header.msg_len_after_header = htons(sizeof(struct sco_data_packet) - sizeof(struct log_message_header));
 		conn_hfp[hands_free_unit].vdb.packet[i].header.msg_len_after_header = htons(sizeof(struct sco_data_packet) - sizeof(struct log_message_header));
-		fixed_data_pkt.header.msg_len_after_header = htons(sizeof(struct sco_data_packet) - sizeof(struct log_message_header));
 		conn_hfp[audio_gateway].vdb.packet[i].data_len = SCO_DATA_LEN;
 		conn_hfp[hands_free_unit].vdb.packet[i].data_len = SCO_DATA_LEN;
-		fixed_data_pkt.data_len = SCO_DATA_LEN;
 	}
+	fixed_data_pkt.header.msg_type = htons(sco_data_packet_type);
+	fixed_data_pkt.header.msg_len_after_header = htons(sizeof(struct sco_data_packet) - sizeof(struct log_message_header));
+	fixed_data_pkt.data_len = SCO_DATA_LEN;
+	discard_data_pkt.header.msg_type = htons(sco_data_packet_type);
+	discard_data_pkt.header.msg_len_after_header = htons(sizeof(struct sco_data_packet) - sizeof(struct log_message_header));
+	discard_data_pkt.data_len = SCO_DATA_LEN;
 
 	/* Create thread for SCO relay */
 	if (pthread_create(&sco_thread, NULL, &sco_thread_func, NULL)) {
@@ -572,7 +575,6 @@ int main(int argc, char **argv)
 
 	g_variant_builder_init(&options, G_VARIANT_TYPE("a{sv}"));
 	g_variant_builder_add(&options, "{sv}", "Name", g_variant_new_string(HFP_PROFILE_NAME));
-	//g_variant_builder_add(&options, "{sv}", "Role",	g_variant_new_string("client"));
 	g_variant_builder_add(&options, "{sv}", "RequireAuthentication", g_variant_new_boolean(FALSE));
 	g_variant_builder_add(&options, "{sv}", "RequireAuthorization", g_variant_new_boolean(FALSE));
 
@@ -597,7 +599,6 @@ int main(int argc, char **argv)
 
 	g_variant_builder_init(&options, G_VARIANT_TYPE("a{sv}"));
 	g_variant_builder_add(&options, "{sv}", "Name", g_variant_new_string(HFP_PROFILE_NAME));
-	//g_variant_builder_add(&options, "{sv}", "Role",	g_variant_new_string("client"));
 	g_variant_builder_add(&options, "{sv}", "RequireAuthentication", g_variant_new_boolean(FALSE));
 	g_variant_builder_add(&options, "{sv}", "RequireAuthorization", g_variant_new_boolean(FALSE));
 
