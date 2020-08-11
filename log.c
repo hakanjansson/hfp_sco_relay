@@ -72,7 +72,8 @@ void log_print(unsigned int level, const char *fmt, ...)
 		msg_len = sizeof(struct txt_msg) - MAX_LOG_TXT_LEN + log_txt_msg.txt_len + 1;
 		log_txt_msg.header.msg_len_after_header =  msg_len - sizeof(struct log_message_header);
 
-		fprintf(log_file, "[%" PRIu64 "] %s: %s", log_txt_msg.header.timestamp, level_text[level], log_txt_msg.txt);
+		if (log_file)
+			fprintf(log_file, "[%" PRIu64 "] %s: %s", log_txt_msg.header.timestamp, level_text[level], log_txt_msg.txt);
 
 		log_txt_msg.header.msg_type = htons(txt_msg_type);
 		log_txt_msg.header.timestamp = htonll(log_txt_msg.header.timestamp);

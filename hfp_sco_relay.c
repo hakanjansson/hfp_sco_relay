@@ -81,7 +81,7 @@ struct hfp_connection {
 
 static void *sco_thread_func(void *arg);
 
-struct hfp_connection conn_hfp[2];
+static struct hfp_connection conn_hfp[2];
 
 static const gchar introspection_xml[] =
 	"<node>"
@@ -118,10 +118,13 @@ static GDBusInterfaceVTable vtable = {
 };
 
 /* Command line configurable variables */
+static int stdout_logging = 1;
+
 static const struct option long_options[] = {
 	{"log-addr", required_argument, 0, 'a'},
 	{"log-port", required_argument, 0, 'p'},
 	{"log-level", required_argument, 0, 'l'},
+	{"no-stdout", no_argument, &stdout_logging, 0},
 	{0, 0, 0, 0}
 };
 
@@ -520,12 +523,16 @@ int main(int argc, char **argv)
 			sscanf(optarg, "%u", &log_level);
 			break;
 
+		case 0:
+			if (long_options[option_index].flag != 0)
+				break;
+
 		default:
 			goto exit;
 		}
 	}
 
-	log_init(log_level, stdout, log_server_address, log_server_port);
+	log_init(log_level, (stdout_logging ? stdout : NULL), log_server_address, log_server_port);
 	log_print(LOG_LEVEL_DEBUG, "Logging to %s:%u\n", log_server_address, log_server_port);
 
 	/* TODO: Handle inits in separate func */
