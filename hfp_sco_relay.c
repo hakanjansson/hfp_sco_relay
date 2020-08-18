@@ -198,19 +198,20 @@ void insert_voice_data_pkt(struct hfp_connection *hc, struct sco_data_packet *sr
 {
 	struct sco_data_packet *dst_pkt = &hc->vdb.packet[hc->vdb.write_index];
 
-	memcpy(dst_pkt->data, src_pkt->data, hc->sco_data_len);
-
 	/* Buffer overflow check */
 	if (hc->vdb.packet[hc->vdb.write_index].has_data) {
 		log_print(LOG_LEVEL_WARNING, "Overflow in \"%s\" SCO data buffer\n",
 				(hc->local_role == hands_free_unit ? "hands_free_unit" : "audio_gateway"));
 		log_print(LOG_LEVEL_DEBUG, "read_index:%u, write_index: %u, sco_pkts_sent: %u, sco_pkts_rcvd: %u\n",
 				hc->vdb.read_index, hc->vdb.write_index, hc->sco_pkts_sent, hc->sco_pkts_rcvd);
+	} else {
+		memcpy(dst_pkt->data, src_pkt->data, hc->sco_data_len);
+
+		hc->vdb.packet[hc->vdb.write_index].has_data = true;
+		hc->vdb.write_index++;
+		if (hc->vdb.write_index == VDB_NUM_PKTS)
+			hc->vdb.write_index = 0;
 	}
-	hc->vdb.packet[hc->vdb.write_index].has_data = true;
-	hc->vdb.write_index++;
-	if (hc->vdb.write_index == VDB_NUM_PKTS)
-		hc->vdb.write_index = 0;
 }
 
 static ssize_t send_voice_data_pkt(struct hfp_connection *hc, struct sco_data_packet *packet)
